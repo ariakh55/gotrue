@@ -40,6 +40,7 @@ require (
 require (
 	github.com/go-jose/go-jose/v3 v3.0.0 // indirect
 	github.com/gobuffalo/nulls v0.4.2 // indirect
+	github.com/kavenegar/kavenegar-go v0.0.0-20221124112814-40341057b5ca // indirect
 )
 
 require (

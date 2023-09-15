@@ -2,6 +2,14 @@
 CHECK_FILES?=./...
 FLAGS?=-ldflags "-X github.com/supabase/gotrue/internal/utilities.Version=`git describe --tags`" -buildvcs=false
 DEV_DOCKER_COMPOSE:=docker-compose-dev.yml
+DOCKER_COMPOSE_CMD := $(shell command -v docker-compose 2> /dev/null)
+
+ifeq ($(DOCKER_COMPOSE_CMD),)
+  DOCKER_COMPOSE_CMD = docker compose
+endif
+
+nigga:
+	echo "${DOCKER_COMPOSE_CMD}"
 
 help: ## Show this help.
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {sub("\\\\n",sprintf("\n%22c"," "), $$2);printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -54,26 +62,26 @@ generate: dev-deps
 	go generate ./...
 
 dev: ## Run the development containers
-	docker-compose -f $(DEV_DOCKER_COMPOSE) up
+	${DOCKER_COMPOSE_CMD} -f $(DEV_DOCKER_COMPOSE) up
 
 down: ## Shutdown the development containers
 	# Start postgres first and apply migrations
-	docker-compose -f $(DEV_DOCKER_COMPOSE) down
+	${DOCKER_COMPOSE_CMD} -f $(DEV_DOCKER_COMPOSE) down
 
 docker-test: ## Run the tests using the development containers
-	docker-compose -f $(DEV_DOCKER_COMPOSE) up -d postgres
-	docker-compose -f $(DEV_DOCKER_COMPOSE) run gotrue sh -c "make migrate_test"
-	docker-compose -f $(DEV_DOCKER_COMPOSE) run gotrue sh -c "make test"
-	docker-compose -f $(DEV_DOCKER_COMPOSE) down -v
+	${DOCKER_COMPOSE_CMD} -f $(DEV_DOCKER_COMPOSE) up -d postgres
+	${DOCKER_COMPOSE_CMD} -f $(DEV_DOCKER_COMPOSE) run gotrue sh -c "make migrate_test"
+	${DOCKER_COMPOSE_CMD} -f $(DEV_DOCKER_COMPOSE) run gotrue sh -c "make test"
+	${DOCKER_COMPOSE_CMD} -f $(DEV_DOCKER_COMPOSE) down -v
 
 docker-build: ## Force a full rebuild of the development containers
-	docker-compose -f $(DEV_DOCKER_COMPOSE) build --no-cache
-	docker-compose -f $(DEV_DOCKER_COMPOSE) up -d postgres
-	docker-compose -f $(DEV_DOCKER_COMPOSE) run gotrue sh -c "make migrate_dev"
-	docker-compose -f $(DEV_DOCKER_COMPOSE) down
+	${DOCKER_COMPOSE_CMD} -f $(DEV_DOCKER_COMPOSE) build --no-cache
+	${DOCKER_COMPOSE_CMD} -f $(DEV_DOCKER_COMPOSE) up -d postgres
+	${DOCKER_COMPOSE_CMD} -f $(DEV_DOCKER_COMPOSE) run gotrue sh -c "make migrate_dev"
+	${DOCKER_COMPOSE_CMD} -f $(DEV_DOCKER_COMPOSE) down
 
 docker-clean: ## Remove the development containers and volumes
-	docker-compose -f $(DEV_DOCKER_COMPOSE) rm -fsv
+	${DOCKER_COMPOSE_CMD} -f $(DEV_DOCKER_COMPOSE) rm -fsv
 
 format:
 	gofmt -s -w .

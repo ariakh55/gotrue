@@ -251,6 +251,7 @@ type SmsProviderConfiguration struct {
 
 	Twilio       TwilioProviderConfiguration       `json:"twilio"`
 	TwilioVerify TwilioVerifyProviderConfiguration `json:"twilio_verify" split_words:"true"`
+	Kavenegar    KavenegarProviderConfiguration    `json: "kavenegar"`
 	Messagebird  MessagebirdProviderConfiguration  `json:"messagebird"`
 	Textlocal    TextlocalProviderConfiguration    `json:"textlocal"`
 	Vonage       VonageProviderConfiguration       `json:"vonage"`
@@ -275,6 +276,10 @@ type TwilioVerifyProviderConfiguration struct {
 	AccountSid        string `json:"account_sid" split_words:"true"`
 	AuthToken         string `json:"auth_token" split_words:"true"`
 	MessageServiceSid string `json:"message_service_sid" split_words:"true"`
+}
+
+type KavenegarProviderConfiguration struct {
+	ApiKey string `json:"api_key" split_words:"true"`
 }
 
 type MessagebirdProviderConfiguration struct {
@@ -562,6 +567,14 @@ func (t *TwilioVerifyProviderConfiguration) Validate() error {
 	if t.MessageServiceSid == "" {
 		return errors.New("missing Twilio message service SID or Twilio phone number")
 	}
+	return nil
+}
+
+func (t *KavenegarProviderConfiguration) Validate() error {
+	if t.ApiKey == "" {
+		return errors.New("missing Kavenegar API key")
+	}
+
 	return nil
 }
 

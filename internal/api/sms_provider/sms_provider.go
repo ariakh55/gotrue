@@ -33,6 +33,8 @@ func GetSmsProvider(config conf.GlobalConfiguration) (SmsProvider, error) {
 	switch name := config.Sms.Provider; name {
 	case "twilio":
 		return NewTwilioProvider(config.Sms.Twilio)
+	case "kavenegar":
+		return NewKavenegarProvider(config.Sms.Kavenegar)
 	case "messagebird":
 		return NewMessagebirdProvider(config.Sms.Messagebird)
 	case "textlocal":

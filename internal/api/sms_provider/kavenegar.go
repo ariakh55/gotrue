@@ -11,6 +11,7 @@ import (
 type KavenegarProvider struct {
 	Config *conf.KavenegarProviderConfiguration
 	API    *kavenegar.Kavenegar
+	OTP    *kavenegar.VerifyService
 }
 
 type kavenegarError struct {
@@ -28,6 +29,7 @@ func NewKavenegarProvider(config conf.KavenegarProviderConfiguration) (SmsProvid
 	return &KavenegarProvider{
 		Config: &config,
 		API:    kavenegar.New(config.ApiKey),
+		OTP:    kavenegar.NewVerifyService(kavenegar.NewClient(config.ApiKey)),
 	}, nil
 }
 
@@ -41,15 +43,25 @@ func (t *KavenegarProvider) SendMessage(phone string, message string, channel st
 }
 
 func (t *KavenegarProvider) SendSms(phone string, message string) (string, error) {
-	sender := ""
-	receptor := []string{phone}
-
-	res, err := t.API.Message.Send(sender, receptor, message, nil)
+	//sender := ""
+	receptor := []string{phone[2:]}
+	
+	template := t.Config.OTPTemplate
+	
+	res, err := t.OTP.Lookup(receptor[0], template, message, &kavenegar.VerifyLookupParam{
+		Type: kavenegar.Type_VerifyLookup_Sms,
+		Tokens: map[string]string{"%token": message},
+	})
 	if err != nil {
 		return "", err
 	}
 
-	status, err := t.API.Message.Status([]string{strconv.Itoa(res[0].MessageID)})
+	//res, err := t.API.Message.Send(sender, receptor, message, nil)
+	//if err != nil {
+		//return "", err
+	//}
+
+	status, err := t.API.Message.Status([]string{strconv.Itoa(res.MessageID)})
 	if err != nil {
 		return "", err
 	}

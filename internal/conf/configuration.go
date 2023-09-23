@@ -280,6 +280,7 @@ type TwilioVerifyProviderConfiguration struct {
 
 type KavenegarProviderConfiguration struct {
 	ApiKey string `json:"api_key" split_words:"true"`
+	OTPTemplate string `json:"otp_template" split_words:"true"`
 }
 
 type MessagebirdProviderConfiguration struct {
